@@ -1,5 +1,5 @@
 <?php
-//Paste the Adder action and secrey key from Google here
+//Paste the Adder action and secret key from Google here
 $adderURL = 'https://tnt-adder.herokuapp.com/submit/';
 $secretKey = '';
 
@@ -39,7 +39,7 @@ curl_setopt($ch, CURLOPT_REFERER, $referrer);
 curl_setopt( $ch, CURLOPT_USERAGENT, $userAgent );
 curl_setopt($ch, CURLOPT_POSTFIELDS, $submission);
 
-// execute!
+// Submit to Adder
 $response = curl_exec($ch);
 // close the connection, release resources used
 curl_close($ch);
