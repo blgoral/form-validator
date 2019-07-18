@@ -1,13 +1,24 @@
 <?php
-//Paste the Adder action and secret key from Google here
+//Paste the Adder action and secrey key from Google here
 $adderURL = 'https://tnt-adder.herokuapp.com/submit/';
 $secretKey = '';
 
 // Take the user agent and referrer from the previous page
-//This will be used to fool Adder into thinking the post is coming straight from the form
 $referrer = $_SERVER['HTTP_REFERER'];
 $userAgent = $_SERVER['HTTP_USER_AGENT'];
-$submission = http_build_query($_POST);
+
+//Check if the site is in staging
+if (strpos($referrer, 'tntclients.com/cms/published') !== false) {
+  $inStaging = true;
+} else {
+  $inStaging = false;
+}
+
+//Remove the captcha response so it doesn't show in the submission
+$submission = $_POST;
+unset($submission['g-recaptcha-response']);
+
+$redirect = $_POST["_redirect"];
 
 //verify response with Google
 $response = $_POST["g-recaptcha-response"];
@@ -27,23 +38,29 @@ $response = $_POST["g-recaptcha-response"];
 	$captcha_success=json_decode($verify);
 	if ($captcha_success->success==false) {
 		echo "<p>CAPTCHA failed!</p>";
-	} else if ($captcha_success->success==true) {
+	} else if ($captcha_success->success==true || $inStaging==true) {
 //open connection
 $ch = curl_init($adderURL);
 //construct the submission
 //Adder will only accept submissions with certain referrers and user agents so we use the ones we stored
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch,CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 curl_setopt($ch, CURLOPT_REFERER, $referrer);
-curl_setopt( $ch, CURLOPT_USERAGENT, $userAgent );
-curl_setopt($ch, CURLOPT_POSTFIELDS, $submission);
+curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
+curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($submission));
 
-// Submit to Adder
+// execute!
 $response = curl_exec($ch);
 // close the connection, release resources used
 curl_close($ch);
 
-// do anything you want with your response
+// output response
 echo $response;
+
+//check if Adder accepted the form and perform redirect
+if (strpos($response, 'redirected') !== false) {
+    header('Location: '.$redirect);
+}
+
 }
