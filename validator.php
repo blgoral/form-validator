@@ -17,7 +17,7 @@ if (strpos($referrer, 'tntclients.com/cms/published') !== false) {
 //Remove the captcha response so it doesn't show in the submission
 $submission = $_POST;
 unset($submission['g-recaptcha-response']);
-$redirect = $_POST["_redirect"];
+
 //verify response with Google
 $response = $_POST["g-recaptcha-response"];
 	$url = 'https://www.google.com/recaptcha/api/siteverify';
