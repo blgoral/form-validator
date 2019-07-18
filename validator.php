@@ -36,9 +36,9 @@ $response = $_POST["g-recaptcha-response"];
 	$context  = stream_context_create($options);
 	$verify = file_get_contents($url, false, $context);
 	$captcha_success=json_decode($verify);
-	if ($captcha_success->success==false) {
+	if ($captcha_success->success==false && $inStaging == false) {
 		echo "<p>CAPTCHA failed!</p>";
-	} else if ($captcha_success->success==true || $inStaging==true) {
+	} else if ($captcha_success->success==true || $inStaging == true) {
 //open connection
 $ch = curl_init($adderURL);
 //construct the submission
@@ -51,16 +51,17 @@ curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
 curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($submission));
 
 // execute!
-$response = curl_exec($ch);
+$adderResponse = curl_exec($ch);
 // close the connection, release resources used
 curl_close($ch);
 
 // output response
-echo $response;
+echo $adderResponse;
 
-//check if Adder accepted the form and perform redirect
-if (strpos($response, 'redirected') !== false) {
+//check if there's a redirect link in the Adder response
+preg_match_all('/<a[^>]+href=([\'"])(?<href>.+?)\1[^>]*>/i', $adderResponse, $result);
+//Perform a redirect if one is found
+if (!empty($result)) {    
+    $redirect = $result['href'][0];
     header('Location: '.$redirect);
-}
-
 }
