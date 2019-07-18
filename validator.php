@@ -57,8 +57,7 @@ echo $adderResponse;
 preg_match_all('/<a[^>]+href=([\'"])(?<href>.+?)\1[^>]*>/i', $adderResponse, $result);
 //Perform a redirect if one is found
 if (!empty($result) && $inStaging == false) {
-    $redirect = $result['href'][0];
-    echo $redirect;die;
+    $redirect = $result['href'][0];    
     header('Location: '.$redirect);
   }
 }
