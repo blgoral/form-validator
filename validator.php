@@ -1,5 +1,5 @@
 <?php
-//Paste the Adder action and secrey key from Google here
+//Paste the Adder action and secret key from Google here
 $adderURL = 'https://tnt-adder.herokuapp.com/submit/';
 $secretKey = '';
 
