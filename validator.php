@@ -3,20 +3,23 @@
 //Paste the Adder action and secret key from Google here
 $adderURL = 'https://tnt-adder.herokuapp.com/submit/';
 $secretKey = '';
-// Take the user agent and referrer from the previous page
 
+// Take the user agent and referrer from the previous page
 $referrer = $_SERVER['HTTP_REFERER'];
 $userAgent = $_SERVER['HTTP_USER_AGENT'];
-//Check if the site is in staging
 
+//Check if the site is in staging
 if (strpos($referrer, 'tntclients.com/cms/published') !== false) {
   $inStaging = true;
 } else {
   $inStaging = false;
 }
-//Remove the captcha response so it doesn't show in the submission
+
 $submission = $_POST;
+//Remove the captcha response so it doesn't show in the submission
 unset($submission['g-recaptcha-response']);
+//Remove numbered indexes so they don't show up when checkboxes are used
+$submission = preg_replace('/(%5B)\d+(%5D=)/i', '$1$2', http_build_query($submission));
 
 //verify response with Google
 $response = $_POST["g-recaptcha-response"];
@@ -46,7 +49,7 @@ curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 curl_setopt($ch, CURLOPT_REFERER, $referrer);
 curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
-curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($submission));
+curl_setopt($ch, CURLOPT_POSTFIELDS, $submission);
 // execute!
 $adderResponse = curl_exec($ch);
 // close the connection, release resources used
